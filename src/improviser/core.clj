@@ -19,3 +19,15 @@
 
 ; And the same thing with a sequence of notes
 (m/midi-play phat-synth [30 41 40 55 42 34] [80 50 20 40 50 80] [250 500 250 250 500 250])
+
+(def mid-C 64)
+(def dom7 [0 4 7 10])
+(def c7 (map #(+ mid-C %) dom7))
+(take 5 c7)
+
+(defn midi-chord
+  "Play a seq of notes with the corresponding velocities and durations."
+  [out notes velocity duration]
+  (map #(m/midi-note phat-synth % velocity duration) notes))
+
+(midi-chord phat-synth c7 80 1000)
