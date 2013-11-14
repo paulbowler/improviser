@@ -2,6 +2,9 @@
   (:use improviser.pitch)
   (:require [overtone.midi :as m]))
 
+(def *tempo* 150)
+(def *octave* 3)
+
 (distinct (map :description (m/midi-ports)))
 
 (def synth (m/midi-out "IAC"))
@@ -32,16 +35,20 @@
 (defn chord-info
   "Takes a string representing a chord such as CM7:8 and returns a map of chord info"
   [chord-string]
-  (let [[match pitch style tension root dur] (validate-chord-string! chord-string)
-        pitch-octave                         (keyword (str pitch 0))
+  (let [[match pitch style tension root beats] (validate-chord-string! chord-string)
+        beats                               (Integer. beats)
+        pitch-octave                         (keyword (str pitch *octave*))
         chord-type                           (keyword (str style tension))
-        duration                             (* 300 (Integer. dur))
+        duration                             (* *tempo* (Integer. beats))
         bass-note                            (or (keyword root) (keyword pitch))]
     {:match     match
      :pitch     pitch-octave
      :type      chord-type
      :root      bass-note
      :notes     (chord pitch-octave chord-type)
+     :beats     beats
+     :delay     0
+     :rest      0
      :duration  duration}))
 
 (validate-chord-string! :Dm7:2)
@@ -57,5 +64,5 @@
 
 (map chord-info LADYBIRD)
 
-;; (m/midi-play-song synth (map chord-info LADYBIRD))
+(m/midi-play-song synth (map chord-info LADYBIRD))
 
