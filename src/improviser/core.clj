@@ -33,7 +33,8 @@
      :m7         minor7
      :7          dom7
      :a7         aug7
-     :d7         dim7}))
+     :d7         dim7
+     :h7         hdim7}))
 
 (:M7 CHORDS)
 (:E NOTE)
@@ -75,7 +76,7 @@
 
 (voicing-options (chord-notes (chord-tones :C :M7) :9+13th) (voice-range :E2 :G3))
 
-(def MIDI-CHORD-RE-STR "([A-G][#b]?)([m|M|d|a]?)([6|7|9]?)([A-G][#b]?)?:([0-9]+)" )
+(def MIDI-CHORD-RE-STR "([A-G][#b]?)([m|M|d|a|h]?)([6|7|9]?)([A-G][#b]?)?:([0-9]+)" )
 (def MIDI-CHORD-RE (re-pattern MIDI-CHORD-RE-STR))
 
 (defn chord-matcher
