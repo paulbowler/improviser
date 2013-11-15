@@ -49,7 +49,7 @@
 
 (def VOICINGS {:basic  [:1st :3rd :5th :7th]
                :shell  [:3rd :7th]
-               :ninths [:3rd :7th :9th]
+               :ninth  [:3rd :7th :9th]
                :9+13th [:3rd :7th :9th :13th]})
 
 (defn voice-range [start end]
@@ -111,18 +111,20 @@
 
 (defn generate-midi-chords
   "Takes a string representing a chord such as CM7:8 and returns a map of chord info"
-  [chord-string]
+  [chord-string f]
   (let [[match pitch style tension root beats] (validate-chord-string! chord-string)
+        chord-key                              (keyword pitch)
         beats                                  (Integer. beats)
         pitch-octave                           (keyword (str pitch *octave*))
         chord-type                             (keyword (str style tension))
         duration                               (* *tempo* (Integer. beats))
         bass-note                              (or (keyword root) (keyword pitch))]
     {:match     match
+     :key       chord-key
      :pitch     pitch-octave
      :type      chord-type
      :root      bass-note
-     :notes     (chord pitch-octave chord-type)
+     :notes     (f chord-key chord-type)
      :beats     beats
      :delay     0
      :rest      0
@@ -130,11 +132,18 @@
 
 (validate-chord-string! :Dm7:2)
 
-(def LADYBIRD [:CM9:8 :Fm7:4 :Bb7:4 :CM7:8
+(defn my-voicing [chord-key chord-quality]
+  (map note (take-first (generate-voicings chord-key chord-quality :ninth :F3 :G4))))
+
+(my-voicing :C :M7)
+
+(def LADYBIRD [:CM7:8 :Fm7:4 :Bb7:4 :CM7:8
                :Bbm7:4 :Eb7:4 :AbM7:8 :Am7:4
                :D7:4 :Dm7:4 :G7:4 :CM7:2
                :Eb7:2 :AbM7:2 :D7:2])
 
-(map generate-midi-chords LADYBIRD)
+(def LB [:CM7:8])
 
-(m/midi-play-song synth (map generate-midi-chords LADYBIRD))
+(map #(generate-midi-chords % my-voicing) LB)
+
+(m/midi-play-song synth (map #(generate-midi-chords % my-voicing) LADYBIRD))
