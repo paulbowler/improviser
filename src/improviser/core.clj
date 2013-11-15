@@ -117,10 +117,6 @@
 
 (validate-chord-string! :Dm7:2)
 
-(str "C" 4)
-
-(chord-info :Dm7A:2)
-
 (def LADYBIRD [:CM9:8 :Fm7:4 :Bb7:4 :CM7:8
                :Bbm7:4 :Eb7:4 :AbM7:8 :Am7:4
                :D7:4 :Dm7:4 :G7:4 :CM7:2
