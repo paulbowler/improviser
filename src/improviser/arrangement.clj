@@ -1,6 +1,7 @@
 (ns improviser.arrangement
   (:use improviser.pitch)
-  (:require [overtone.midi :as m]))
+  (:require [overtone.midi :as m]
+            [clojure.math.combinatorics :as combo]))
 
 (def *tempo* 200)
 (def *octave* 3)
@@ -18,13 +19,33 @@
            :A# 10 :a# 10 :Bb 10 :bb 10 :BB 10 :bB 10
            :B  11 :b  11 :Cb 11 :cb 11 :CB 11 :cB 11})
 
+(def NOTE-POSITION
+              {:1   0
+               :b9  1
+               :9   2
+               :#9  3
+               :b3  3
+               :3   4
+               :11  5
+               :#11 6
+               :b5  6
+               :5   7
+               :#5  8
+               :b13 8
+               :13  9
+               :b7  10
+               :7   11})
+
+(defn notes-to-position [notes]
+  (sort (map #(% NOTE-POSITION) notes)))
+
 (def CHORDS
-  (let [major7 #{0 4 7 11 14 18 21}
-        dom7   #{0 4 7 10 14 18 21}
-        hdim7  #{0 4 6 10 14 18 21}
-        minor7 #{0 3 7 10 14 17 21}
-        aug7   #{0 4 8 10 14 17 21}
-        dim7   #{0 3 6 9}]
+  (let [major7 #{:1 :3 :5 :7 :9 :#11 :13}
+        dom7   #{:1 :3 :5 :b7 :9 :#11 :13}
+        hdim7  #{:1 :3 :b5 :b7 :9}
+        minor7 #{:1 :b3 :5 :b7 :9 :11 :13}
+        aug7   #{:1 :3 :#5 :b7 :9 :#11 :13}
+        dim7   #{:1 :b3 :#11 :13}]
     {:M7         major7
      :m7         minor7
      :7          dom7
@@ -32,18 +53,18 @@
      :d7         dim7
      :h7         hdim7}))
 
-(def POSITION {:1st  0
-               :3rd  1
-               :5th  2
-               :7th  3
-               :9th  4
-               :11th 5
-               :13th 6})
+(def POSITION {:1  0
+               :3  1
+               :5  2
+               :7  3
+               :9  4
+               :11 5
+               :13 6})
 
-(def VOICINGS {:basic  [:1st :3rd :5th :7th]
-               :shell  [:3rd :7th]
-               :ninth  [:3rd :7th :9th]
-               :9+13th [:3rd :7th :9th :13th]})
+(def VOICINGS {:basic  [:1 :3 :5 :7]
+               :shell  [:3 :7]
+               :ninth  [:3 :7 :9]
+               :9+13th [:3 :7 :9 :13]})
 
 (defn voice-range [start end]
   (range (note start) (note end)))
@@ -51,13 +72,11 @@
 (defn note-choice [note range]
   (map find-note-name (filter #(= (note NOTE) (rem % 12)) range)))
 
-(note-choice :C (voice-range :E1 :G3))
-
 (defn find-notes [notes]
   (map #(REVERSE-NOTES (rem % 12)) notes))
 
 (defn chord-tones [note chord]
-  (map #(+ (note NOTE) %) (chord CHORDS)))
+  (map #(+ (note NOTE) (% NOTE-POSITION)) (chord CHORDS)))
 
 (defn chord-notes [tones voicing]
   (find-notes (map #(nth tones (% POSITION)) (voicing VOICINGS))))
@@ -113,7 +132,27 @@
      :duration  duration}))
 
 (defn my-voicing [chord-key chord-quality]
-  (map note (take-first (generate-voicings chord-key chord-quality :9+13th :F3 :G4))))
+  (map note (take-first (generate-voicings chord-key chord-quality :shell :F3 :G4))))
 
 (defn midi-player [instrument chords voicing]
   (m/midi-play-song instrument (map #(generate-midi-chords % voicing) chords)))
+
+(voicing-options [:E :Bb :A :D] (voice-range :E2 :C4))
+
+(apply combo/cartesian-product (generate-voicings :C :7 :basic :E2 :C4))
+
+(map #(apply - (sort > %)) (partition 2 1 (sort > (map note '(:Bb3 :G3 :C3 :E3)))))
+
+(defn note-separation [chord]
+  (map #(apply - (sort > %)) (partition 2 1 (sort > (map note chord)))))
+
+(map note-separation (apply combo/cartesian-product (generate-voicings :C :7 :basic :E2 :C4)))
+
+(reduce + (map #(apply - %) (partition 2 1 (sort > (map note '(:Bb3 :G3 :C3 :E3))))))
+
+(defn total-separation [notes]
+  (reduce + (map #(apply - %) (partition 2 1 (sort > (map note notes))))))
+
+(map total-separation (apply combo/cartesian-product (generate-voicings :C :7 :basic :E2 :C4)))
+
+
