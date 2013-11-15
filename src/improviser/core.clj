@@ -75,6 +75,19 @@
   (map #(note-instances % range) notes))
 
 (voicing-options (chord-notes (chord-tones :C :M7) :9+13th) (voice-range :E2 :G3))
+(voicing-options (chord-notes (chord-tones :F :m7) :9+13th) (voice-range :E2 :G3))
+(voicing-options (chord-notes (chord-tones :Bb :7) :9+13th) (voice-range :E2 :G3))
+
+(defn generate-voicings [note chord-type voicing start end]
+  (voicing-options (chord-notes (chord-tones note chord-type) voicing) (voice-range start end)))
+
+(generate-voicings :C :M7 :9+13th :E2 :G3)
+
+(defn take-first [options]
+  (map first options))
+
+(map note (take-first (generate-voicings :C :M7 :9+13th :E2 :G3)))
+
 
 (def MIDI-CHORD-RE-STR "([A-G][#b]?)([m|M|d|a|h]?)([6|7|9]?)([A-G][#b]?)?:([0-9]+)" )
 (def MIDI-CHORD-RE (re-pattern MIDI-CHORD-RE-STR))
