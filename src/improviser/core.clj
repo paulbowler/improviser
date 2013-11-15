@@ -77,13 +77,12 @@
 
 (def MIDI-CHORD-RE-STR "([A-G][#b]?)([m|M|d|a]?)([6|7|9]?)([A-G][#b]?)?:([0-9]+)" )
 (def MIDI-CHORD-RE (re-pattern MIDI-CHORD-RE-STR))
-(def ONLY-MIDI-CHORD-RE (re-pattern (str MIDI-CHORD-RE-STR)))
 
 (defn chord-matcher
   "Determines whether a midi keyword is valid or not. If valid,
   returns a regexp match object"
   [mk]
-  (re-find ONLY-MIDI-CHORD-RE (name mk)))
+  (re-find MIDI-CHORD-RE (name mk)))
 
 (defn validate-chord-string!
   "Throws a friendly exception if midi-keyword mk is not
