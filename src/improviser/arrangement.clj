@@ -64,7 +64,7 @@
 (def VOICINGS {:basic  [:1 :3 :5 :7]
                :shell  [:3 :7]
                :ninth  [:3 :7 :9]
-               :9+13th [:3 :7 :9 :13]})
+               :9+13th [:3 :5 :7 :9 :13]})
 
 (defn voice-range [start end]
   (range (note start) (note end)))
@@ -146,13 +146,13 @@
 (defn note-separation [chord]
   (map #(apply - (sort > %)) (partition 2 1 (sort > (map note chord)))))
 
-(map note-separation (apply combo/cartesian-product (generate-voicings :C :7 :basic :E2 :C4)))
+(map note-separation (apply combo/cartesian-product (generate-voicings :C :7 :9+13th :E2 :G3)))
 
 (reduce + (map #(apply - %) (partition 2 1 (sort > (map note '(:Bb3 :G3 :C3 :E3))))))
 
 (defn total-separation [notes]
   (reduce + (map #(apply - %) (partition 2 1 (sort > (map note notes))))))
 
-(map total-separation (apply combo/cartesian-product (generate-voicings :C :7 :basic :E2 :C4)))
+(map total-separation (apply combo/cartesian-product (generate-voicings :C :7 :9+13th :E2 :G3)))
 
 
