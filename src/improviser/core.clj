@@ -133,7 +133,7 @@
 (validate-chord-string! :Dm7:2)
 
 (defn my-voicing [chord-key chord-quality]
-  (map note (take-first (generate-voicings chord-key chord-quality :ninth :F3 :G4))))
+  (map note (take-first (generate-voicings chord-key chord-quality :9+13th :F3 :G4))))
 
 (my-voicing :C :M7)
 
@@ -146,4 +146,7 @@
 
 (map #(generate-midi-chords % my-voicing) LB)
 
-(m/midi-play-song synth (map #(generate-midi-chords % my-voicing) LADYBIRD))
+(defn midi-player [instrument chords voicing]
+  (m/midi-play-song instrument (map #(generate-midi-chords % voicing) chords)))
+
+(midi-player synth LADYBIRD my-voicing)
