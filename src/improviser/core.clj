@@ -38,12 +38,42 @@
 (:M7 CHORDS)
 (:E NOTE)
 
-(map #(+ (:E NOTE) %) (:M7 CHORDS))
+(def POSITION {:1st  0
+               :3rd  1
+               :5th  2
+               :7th  3
+               :9th  4
+               :11th 5
+               :13th 6})
+
+(def VOICINGS {:basic  [:1st :3rd :5th :7th]
+               :shell  [:3rd :7th]
+               :ninths [:3rd :7th :9th]
+               :9+13th [:3rd :7th :9th :13th]})
+
+(defn voice-range [start end]
+  (range (note start) (note end)))
+
+(defn note-instances [note spread]
+  (map find-note-name (filter #(= (note NOTE) (rem % 12)) spread)))
+
+(note-instances :C (voice-range :E1 :G3))
+
+(defn find-notes [notes]
+  (map #(REVERSE-NOTES (rem % 12)) notes))
 
 (defn chord-tones [note chord]
   (map #(+ (note NOTE) %) (chord CHORDS)))
 
-(chord-tones :G :m7)
+(defn chord-notes [tones voicing]
+  (find-notes (map #(nth tones (% POSITION)) (voicing VOICINGS))))
+
+(chord-notes (chord-tones :G :m7) :9+13th)
+
+(defn voicing-options [notes range]
+  (map #(note-instances % range) notes))
+
+(voicing-options (chord-notes (chord-tones :C :M7) :9+13th) (voice-range :E2 :G3))
 
 (def MIDI-CHORD-RE-STR "([A-G][#b]?)([m|M|d|a]?)([6|7|9]?)([A-G][#b]?)?:([0-9]+)" )
 (def MIDI-CHORD-RE (re-pattern MIDI-CHORD-RE-STR))
