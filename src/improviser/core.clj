@@ -55,10 +55,10 @@
 (defn voice-range [start end]
   (range (note start) (note end)))
 
-(defn note-instances [note spread]
-  (map find-note-name (filter #(= (note NOTE) (rem % 12)) spread)))
+(defn note-choice [note range]
+  (map find-note-name (filter #(= (note NOTE) (rem % 12)) range)))
 
-(note-instances :C (voice-range :E1 :G3))
+(note-choice :C (voice-range :E1 :G3))
 
 (defn find-notes [notes]
   (map #(REVERSE-NOTES (rem % 12)) notes))
@@ -72,7 +72,7 @@
 (chord-notes (chord-tones :G :m7) :9+13th)
 
 (defn voicing-options [notes range]
-  (map #(note-instances % range) notes))
+  (map #(note-choice % range) notes))
 
 (voicing-options (chord-notes (chord-tones :C :M7) :9+13th) (voice-range :E2 :G3))
 (voicing-options (chord-notes (chord-tones :F :m7) :9+13th) (voice-range :E2 :G3))
